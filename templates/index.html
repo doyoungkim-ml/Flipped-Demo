@@ -1,0 +1,400 @@
+
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>Flipped learning! Classifying natural language tasks via guessing the instruction</title>
+  
+      <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+      <script async defer src="https://buttons.github.io/buttons.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+      <script src="https://superal.github.io/canvas2image/canvas2image.js"></script>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.css">
+  
+      <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
+      <script>
+          $(document).ready(function() {
+              var i=3;
+          $("#add-option-button").click(function() {
+              
+              $("#option-add").append("<textarea class='form-control' style='font-size: 20px; margin: 10px;' name='options"+i+"' rows='1' id='textbox' placeholder='Type additional option here if it exists'></textarea>");
+              
+              i++;
+              
+
+          });
+          });            
+      </script>
+  </head>
+  
+  <style>
+  /***** For logo slider *****/
+  .slick-slide {
+    margin: 0px 20px;
+  }
+  
+  .logo-carousel {
+    overflow: inherit;
+    margin-top: 32px;
+    /*border-top: 1px solid #353535;*/
+    /*border-bottom: 1px solid #353535;*/
+  }
+  
+  .slick-slide img {
+    width: 100%;
+  }
+  
+  .slick-loading {
+    visibility: hidden;
+  }
+  
+  .slick-slide.slick-loading img {
+    display: none;
+  }
+  
+  .slick-slide.dragging img {
+    pointer-events: none;
+  }
+  
+  .slick-loading .slick-slide {
+    visibility: hidden;
+  }
+  
+  .slick-arrow {
+    position: absolute;
+    top: 50%;
+    background: url(https://raw.githubusercontent.com/solodev/infinite-logo-carousel/master/images/arrow.svg?sanitize=true) center no-repeat;
+    color: #fff;
+    filter: invert(77%) sepia(32%) saturate(1%) hue-rotate(344deg) brightness(105%) contrast(103%);
+    border: none;
+    width: 2rem;
+    height: 1.5rem;
+    text-indent: -10000px;
+    margin-top: -16px;
+    z-index: 99;
+  }
+  
+  .slick-arrow.slick-next {
+    right: -40px;
+    transform: rotate(180deg);
+  }
+  
+  .slick-arrow.slick-prev {
+    left: -40px;
+  }
+  
+  @media (max-width: 768px) {
+    .slick-arrow {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+  
+  .row {
+    overflow: hidden;
+  }
+  
+  /***** Prompt and result display *****/
+  .result-block {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      clear: both;
+      min-height: 10em;
+  }
+  #promptDisplay {
+      font-weight: 600;
+  }
+  #error {
+      color: red;
+  }
+  
+  /***** Loader *****/
+  #loader_holder {
+      visibility: hidden;
+  }
+  
+  #loaderInline {
+    display: inline-block;
+    vertical-align:middle;
+    width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
+    border: 2px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 2px solid #3498db;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+  }
+  
+  @-webkit-keyframes spin {
+    0% {
+      -webkit-transform: rotate(0deg);
+    }
+    100% {
+      -webkit-transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .animate-bottom {
+    position: relative;
+    -webkit-animation-name: animatebottom;
+    -webkit-animation-duration: 1s;
+    animation-name: animatebottom;
+    animation-duration: 1s
+  }
+  
+  @-webkit-keyframes animatebottom {
+    from {
+      bottom: -100px;
+      opacity: 0
+    }
+    to {
+      bottom: 0px;
+      opacity: 1
+    }
+  }
+  
+  @keyframes animatebottom {
+    from {
+      bottom: -100px;
+      opacity: 0
+    }
+    to {
+      bottom: 0;
+      opacity: 1
+    }
+  }
+  </style>
+  
+  <!--  <body class="d-flex h-100 text-center text-dark bg-dark">-->
+  <body class="bg-white wy-text-center">
+    <div class="container">
+      <header class="d-flex flex-wrap justify-content-center py-2 mb-4 border-bottom">
+
+
+      </header>
+    </div>
+  
+    <div class="container my-5 text-center">
+
+        <h1 class="display-2">Classify natural language tasks via guessing the instruction! </h1>
+        <p class="lead mb-4">
+          We propose Flipped Learning, an alternative method of meta-training which trains the LM to generate the task instruction given the input instance and label. During inference, Flipped-11B selects the label option that is most likely to generate the task instruction.
+        </p>
+        <div class="py-5">
+          <img alt="Flipped logo" width="1000" src="https://github.com/seonghyeonye/Flipped-Learning/blob/master/Flipped_overview.png?raw=true">
+        </div>
+        <div class="pt-2 pb-4">
+          <iframe src="https://ghbtns.com/github-btn.html?user=seonghyeonye&repo=Flipped-Learning&type=star&count=true&size=large"  width="170" height="35" title="GitHub"></iframe>
+        </div>
+  
+        <div class="d-grid gap-4 d-sm-flex justify-content-sm-center">
+          <a href="#classification" class="btn btn-primary px-4 btn-lg">Try Live Classification</a>
+          <a href="https://arxiv.org/abs/2210.02969" class="btn btn-outline-primary px-4 btn-lg" target="_blank">See our paper</a>
+        </div>
+    </div>
+  
+  <!--<div class="bg-white" id="generation">-->
+  <div class="container py-5" id="classification">
+      <div class="p-4 mb-3 bg-light rounded-4">
+      <p>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="gold" class="bi bi-lightning-fill" style="width:5%;" viewBox="0 0 20 20">
+              <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
+          </svg>
+          <strong class="display-6 fw-bold">Free, Unlimited Flipped-11B classification</strong>
+      </p>
+  <!--    <p id="examples"> <strong>Examples: </strong> </p>-->
+
+  
+  <form method="GET" action="/classify" id="classify-form">
+      <div  id="option-add">
+          <label for="textbox" class="form-label"></label>
+
+            <b>
+          Add instruction
+            </b>
+            <input class="form-control" style="font-size: 20px; margin: 10px;" name="instruction" rows="2" id="textbox" placeholder="Type the instruction here(ex. Is this sentence positive?: )"></input>
+
+            <b>
+              Add input
+            </b>
+            <input class="form-control" style="font-size: 20px; margin: 10px;" name="input" rows="2" id="textbox" placeholder="Type the input here(ex.  What a great day!)"></input>
+
+
+
+            <b>
+              Add options
+            </b>
+            <input class="form-control" style="font-size: 20px; margin: 10px;" name="options1" rows="1" id="textbox" placeholder="Type the first option here(ex. Yes)"></input>
+            <input class="form-control" style="font-size: 20px; margin: 10px;" name="options2" rows="1" id="textbox" placeholder="Type the second option here(ex. No)"></input>
+
+
+            
+
+      </div>
+  
+      
+
+      <div>
+          
+          <script src='//www.recaptcha.net/recaptcha/api.js?hl=en'></script>
+          <div class="g-recaptcha justify-content-sm-center" data-sitekey="6LcpFukhAAAAAEqBnx31zFqGWy_TMtH7TwdBzUp_" data-theme="light" data-type="image" data-size="normal"         data-tabindex="0"></div>
+          <div class="d-grid gap-4 d-sm-flex justify-content-sm-center">
+              <input class="btn btn-primary btn-lg mt-2" type="button" value="Add Option" id="add-option-button"/>
+              <input class="btn btn-primary btn-lg mt-2" type="submit" value="Classify" id="classify-form-button"/>
+          </div>
+          <div id="loader_holder" style="display:inline; vertical-align:middle">
+              <div id="loaderInline"></div> Please be patient. Your request may take <span id="eta">X</span> seconds.  <!-- Each run may produce different results due to random sampling. -->
+          </div>
+      </div>
+  </form>
+  
+  <p class="lead mb-4">
+    <b>
+      Bar result
+    </b>
+  </p>  
+  <div class="tab-content" id="resultTabContent" background-color="white">
+    
+      <div id="result0-content" class="form-control">
+        <body class="bg-white wy-text-center" >
+          <div class="grid horizontal" id="result-bar">
+            <script
+              src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
+            </script>
+            <body>
+              <canvas id="myChart" width="400px" height= "auto"></canvas>
+              <script>
+                var xValues = {{ options|safe }};
+                var yValues = {{ prob_list|safe }};
+                var barColors ={{ bar_color|safe }};
+                new Chart("myChart", {
+                  type: "horizontalBar",
+                  data: {
+                    labels: xValues,
+                    datasets: [{
+                      label: 'relative probability',
+                      backgroundColor: barColors,
+                      data: yValues,
+                      barPercentage: 0.5
+                    }]
+                  },
+                  options: {
+                    indexAxis: 'y',
+                    
+                    // Elements options apply to all of the options unless overridden in a dataset
+                    // In this case, we are setting the border of each horizontal bar to be 2px wide
+                    elements: {
+                      bar: {
+                        borderWidth: 2,
+                        borderRadius:0.1
+                      }
+                    },
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        display: false,
+                        position: 'right',
+                        labels:{
+                          display: false,
+                          padding: 10
+                        }
+                      },
+                      title: {
+                        display: true,
+                        text: 'Result'
+                      }
+                    }
+                  },
+
+                });
+              </script>
+
+
+            </body>
+
+
+
+
+          </div>
+
+
+
+
+
+        </body>
+      </div>
+
+    
+  </div>
+  <p></p>
+  <p  class="lead mb-4">
+    <b>
+      The answer is {{answer}}
+    </b>
+  </p>
+  </div>
+  
+  
+  <div class="d-sm-flex justify-content-center text-center">
+      <p class="lead">Like the results? &#11088;  Support Flipped learning by staring our repo on GitHub  &nbsp;</p>
+      <a class="github-button" href="https://github.com/seonghyeonye/Flipped-Learning" data-color-scheme="no-preference: light; light: light; dark: dark;" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star Flipped-Learning on GitHub">Star</a>
+  </div>
+  
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+      <a class="btn btn-block btn-tumblr" onclick="takeshot()"><i class="fa-solid fa-camera"></i> Screenshot</a>
+      <a href="https://twitter.com/intent/tweet?text=Classify%20by%20Flipping!%20Try%20it%20yourself%20(unlimited)%20at%20http%3A%2F%2Fflipped.kaist.ai%2F!%20%23Flipped" target="_blank" class="btn btn-block btn-twitter"><i class="fa-brands fa-twitter"></i> Tweet it! #Flipped</a>
+      <a href="https://github.com/seonghyeonye/Flipped-Learning/fork" target="_blank" class="btn btn-primary">Fork on GitHub</a>
+
+    </div>
+  </div>
+  
+
+
+
+  
+    <div class="container">
+      <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 border-top">
+      <div class="d-flex align-items-center">
+          <a href="#home" class="me-2">
+            <img alt="kasitai-logo" style="width: 120px;" src="https://gsai.kaist.ac.kr/wp-content/uploads/2019/09/kaist_ai_logo-1.svg">
+          </a>
+          <span class="text-muted">&copy; 2019 KAIST AI. If there is any problem with this demo, contact me via <a href="mailto:doyoung9803@gmail.com">email</a>.</span>
+        </div>
+  
+        <ul class="nav nav-pills">
+          <li class="nav-item"><a href="#classification" class="nav-link px-2 text-muted">Classification</a></li>
+          <li class="nav-item"><a href="https://github.com/seonghyeonye/Flipped-Learning/blob/master/flipped_inference.ipynb" target="_blank" class="nav-link px-2 text-muted">Tutorial</a></li>
+          <li class="nav-item"><a href="https://arxiv.org/abs/2210.02969" target="_blank" class="nav-link px-2 text-muted">Paper</a></li>
+          <li class="nav-item"><a href="https://github.com/seonghyeonye/Flipped-Learning" target="_blank" class="nav-link px-2 text-muted">GitHub</a></li>
+        </ul>
+      </footer>
+    </div>
+  
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XPSB9HFTDS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-XPSB9HFTDS');
+  </script>
+  
+  </body>
+  </html>
