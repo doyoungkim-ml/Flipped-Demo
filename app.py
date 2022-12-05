@@ -1,36 +1,34 @@
 # /app.py
 from flask import Flask, render_template, request
-import torch
+import requests
+import torch 
 from transformers import T5Tokenizer, T5ForConditionalGeneration
 
-model = T5ForConditionalGeneration.from_pretrained("seonghyeonye/flipped_3B")
 tokenizer = T5Tokenizer.from_pretrained("seonghyeonye/flipped_3B")
+model = T5ForConditionalGeneration.from_pretrained("seonghyeonye/flipped_3B", device_map="auto", offload_folder='../offload')
 #Flask 객체 인스턴스 생성
 app = Flask(__name__)
 
 @app.route('/',methods=('GET', 'POST')) # 접속하는 url
 def index():
-  return render_template('index.html', len = 0)
+    if request.form.to_dict()!={}:
+        
+        data = request.form.to_dict()
+        print(data)
+        option = []
+        i=1
 
-@app.route('/classify',methods=('GET', 'POST'))
-def classify():
-    option = []
-    i=1
-
-    while True:
-        label = request.args.get(f'options{i}')
-        if label != None:
+        while f'options{i}' in data.keys():
+            label = data[f'options{i}']
             option.append(label)
             i+=1
-        else:
-            break
-    
-    
-    answer, options, predictions, prob_list = flipped(request.args.get('instruction'), request.args.get('input'), option)
-    bar_color = ["blue" for i in range(len(options))]
-    bar_color[predictions]="red"
-    print(bar_color, predictions)
-    return render_template('index.html',answer=answer, options=options, bar_color=bar_color, prob_list=prob_list, len = len(prob_list))
+        answer, options, predictions, prob_list = flipped(data['instruction'], data['input'], option)
+        bar_color = ["blue" for i in range(len(options))]
+        bar_color[predictions]="red"
+        print(bar_color, predictions)
+        return {"answer":answer, "options":options, "bar_color":bar_color, "prob_list":prob_list, "len": len(prob_list)}
+    else:
+        return render_template('index.html', len = 0)
 def flipped(instruct, input, options):
     print(instruct, input, options)
     source_ids_batch=[]
@@ -84,8 +82,8 @@ def flipped(instruct, input, options):
         probability /= sum
         probability *=100
         predictions = concat.argmax(dim=1)
-        return options[predictions.tolist()[0]], options, predictions.tolist()[0], probability.tolist()
+    return options[predictions.tolist()[0]], options, predictions.tolist()[0], probability.tolist()
 if __name__=="__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port="8880",debug=True, use_reloader=False)
     # host 등을 직접 지정하고 싶다면
     # app.run(host="127.0.0.1", port="5000", debug=True)

@@ -18,6 +18,77 @@
       <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css"/>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.9.0/slick.min.js"></script>
       <script>
+    var myChart
+    function test1(){
+      var formData = $('#AjaxForm').serialize();
+      $.ajax({
+          cache : false,
+          url : "/", // 요기에
+          type : 'POST', 
+          async: false,
+          data : formData, 
+          success : function(response) {
+             var answer=response["answer"]
+             var options=response["options"]
+             var bar_color=response["bar_color"]
+             var prob_list=response["prob_list"]
+             var length=response["length"]
+             console.log(prob_list, bar_color)
+             $('#answer').replaceWith('<p  id= answer class="lead mb-4"><b>The answer is '+ answer+'</b></p>')
+             myChart = new Chart("myChart", {
+                  type: "horizontalBar",
+                  data: {
+                    labels: options,
+                    datasets: [{
+                      label: 'relative probability',
+                      backgroundColor: bar_color,
+                      data: prob_list,
+                      barPercentage: 0.5
+                    }]
+                  },
+                  options: {
+                    indexAxis: 'y',
+                    
+                    // Elements options apply to all of the options unless overridden in a dataset
+                    // In this case, we are setting the border of each horizontal bar to be 2px wide
+                    elements: {
+                      bar: {
+                        borderWidth: 2,
+                        borderRadius:0.1
+                      }
+                    },
+                    responsive: true,
+                    plugins: {
+                      legend: {
+                        display: false,
+                        position: 'right',
+                        labels:{
+                          display: false,
+                          padding: 10
+                        }
+                      },
+                      title: {
+                        display: true,
+                        text: 'Result'
+                      }
+                    }
+                  },
+
+                });
+              //$('#myChart').replaceWith('<canvas id="myChart" width="400px" height= "auto"></canvas>')
+
+          }, // success 
+
+          error : function(xhr, status) {
+              alert(xhr + " : " + status);
+          },
+          
+
+      }); // $.ajax */
+}
+
+
+
           $(document).ready(function() {
               var i=3;
           $("#add-option-button").click(function() {
@@ -194,14 +265,33 @@
 
         <h1 class="display-2">Classify natural language tasks via guessing the instruction! </h1>
         <p class="lead mb-4">
-          We propose Flipped Learning, an alternative method of meta-training which trains the LM to generate the task instruction given the input instance and label. During inference, Flipped-11B selects the label option that is most likely to generate the task instruction.
+          We propose Flipped Learning, an alternative method of meta-training which trains the LM to generate the task instruction given the input instance and label. During inference, Flipped-3B selects the label option that is most likely to generate the task instruction.
         </p>
-        <div class="py-5">
+        <script type="text/javascript"> 
+          var bDisplay = true; function doDisplay(){ 	
+              var con = document.getElementById("Flipped logo"); 	
+              if(con.style.display=='none'){ 		
+                  con.style.display = 'block'; 	
+              }else{ 		
+                  con.style.display = 'none'; 	
+              } 
+          } 
+      </script> 
+      <p>
+        <a href="javascript:doDisplay();"> > See overview</a> 
+      </p>
+
+
+        <div id="Flipped logo" style = 'display:none;' class="py-5">
           <img alt="Flipped logo" width="1000" src="https://github.com/seonghyeonye/Flipped-Learning/blob/master/Flipped_overview.png?raw=true">
         </div>
+
+      <p>
         <div class="pt-2 pb-4">
           <iframe src="https://ghbtns.com/github-btn.html?user=seonghyeonye&repo=Flipped-Learning&type=star&count=true&size=large"  width="170" height="35" title="GitHub"></iframe>
-        </div>
+        </div>        
+      </p>
+
   
         <div class="d-grid gap-4 d-sm-flex justify-content-sm-center">
           <a href="#classification" class="btn btn-primary px-4 btn-lg">Try Live Classification</a>
@@ -216,12 +306,12 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="gold" class="bi bi-lightning-fill" style="width:5%;" viewBox="0 0 20 20">
               <path d="M5.52.359A.5.5 0 0 1 6 0h4a.5.5 0 0 1 .474.658L8.694 6H12.5a.5.5 0 0 1 .395.807l-7 9a.5.5 0 0 1-.873-.454L6.823 9.5H3.5a.5.5 0 0 1-.48-.641l2.5-8.5z"/>
           </svg>
-          <strong class="display-6 fw-bold">Free, Unlimited Flipped-11B classification</strong>
+          <strong class="display-6 fw-bold">Free, Unlimited Flipped-3B classification</strong>
       </p>
   <!--    <p id="examples"> <strong>Examples: </strong> </p>-->
 
   
-  <form method="GET" action="/classify" id="classify-form">
+  <form name="AjaxForm" id="AjaxForm">
       <div  id="option-add">
           <label for="textbox" class="form-label"></label>
 
@@ -253,14 +343,14 @@
       <div>
           
           <script src='//www.recaptcha.net/recaptcha/api.js?hl=en'></script>
-          <div class="g-recaptcha justify-content-sm-center" data-sitekey="6LcpFukhAAAAAEqBnx31zFqGWy_TMtH7TwdBzUp_" data-theme="light" data-type="image" data-size="normal"         data-tabindex="0"></div>
+          <!-- <div class="g-recaptcha justify-content-sm-center" data-sitekey="6LcpFukhAAAAAEqBnx31zFqGWy_TMtH7TwdBzUp_" data-theme="light" data-type="image" data-size="normal"         data-tabindex="0"></div> -->
           <div class="d-grid gap-4 d-sm-flex justify-content-sm-center">
               <input class="btn btn-primary btn-lg mt-2" type="button" value="Add Option" id="add-option-button"/>
-              <input class="btn btn-primary btn-lg mt-2" type="submit" value="Classify" id="classify-form-button"/>
+              <input class="btn btn-primary btn-lg mt-2" type="button" value="Classify" id="classify-form-button" onclick="test1();"/>
           </div>
-          <div id="loader_holder" style="display:inline; vertical-align:middle">
-              <div id="loaderInline"></div> Please be patient. Your request may take <span id="eta">X</span> seconds.  <!-- Each run may produce different results due to random sampling. -->
-          </div>
+          <!-- <div id="loader_holder" style="display:inline; vertical-align:middle">
+              <div id="loaderInline"></div> Please be patient. Your request may take <span id="eta">X</span> seconds.  Each run may produce different results due to random sampling. -->
+          <!-- </div> -->
       </div>
   </form>
   
@@ -277,12 +367,13 @@
             <script
               src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js">
             </script>
-            <body>
+            <body id="barchart">
+
               <canvas id="myChart" width="400px" height= "auto"></canvas>
               <script>
-                var xValues = {{ options|safe }};
-                var yValues = {{ prob_list|safe }};
-                var barColors ={{ bar_color|safe }};
+                // var xValues = {{ options|safe }};
+                // var yValues = {{ prob_list|safe }};
+                // var barColors ={{ bar_color|safe }};
                 new Chart("myChart", {
                   type: "horizontalBar",
                   data: {
@@ -343,7 +434,7 @@
     
   </div>
   <p></p>
-  <p  class="lead mb-4">
+  <p  id= answer class="lead mb-4">
     <b>
       The answer is {{answer}}
     </b>
@@ -357,8 +448,7 @@
   </div>
   
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-      <a class="btn btn-block btn-tumblr" onclick="takeshot()"><i class="fa-solid fa-camera"></i> Screenshot</a>
-      <a href="https://twitter.com/intent/tweet?text=Classify%20by%20Flipping!%20Try%20it%20yourself%20(unlimited)%20at%20http%3A%2F%2Fflipped.kaist.ai%2F!%20%23Flipped" target="_blank" class="btn btn-block btn-twitter"><i class="fa-brands fa-twitter"></i> Tweet it! #Flipped</a>
+      <a href="https://twitter.com/intent/tweet?text=Classify%20by%20Flipping!%20Try%20it%20yourself%20(unlimited)%20at%20http%3A%2F%2Fflipped-learning-demo.com%2F!%20%23Flipped" target="_blank" class="btn btn-block btn-twitter"><i class="fa-brands fa-twitter"></i> Tweet it! #Flipped</a>
       <a href="https://github.com/seonghyeonye/Flipped-Learning/fork" target="_blank" class="btn btn-primary">Fork on GitHub</a>
 
     </div>
